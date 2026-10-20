@@ -1,0 +1,20 @@
+﻿# Java
+*.class
+*.jar
+*.war
+target/
+out/
+build/
+
+# IDE
+.idea/
+*.iml
+*.iws
+.vscode/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# 临时文件
+*.log
