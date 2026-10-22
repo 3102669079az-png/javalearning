@@ -4,7 +4,7 @@ public class Main {
         b1.print();
         Book b2 = new Book("三体", 23, 302);
         b2.print();
-        System.out.println(b1.name + "买三本共" + b1.totalvalue(3) + "元");
+        System.out.println(b1.name + "买三本共" + b1.totalValue(3) + "元");
 
 
         Book[] books = {
@@ -21,5 +21,13 @@ public class Main {
             }
             System.out.println("总" + books.length + "本" + sum + "元");
         }
+
+
+    EBook e1 = new EBook("三体电子版", 19, 302, 5);
+    e1.print();
+    System.out.println("书名:"+e1.name);
+
+    Book b3 = new EBook("三体电子版", 19, 302, 5);
+    b3.print();
     }
 }
