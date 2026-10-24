@@ -36,5 +36,19 @@ public class Main {
 
         EBook e2 = new EBook("平凡的世界电子版", 12, 402, 3);
         e2.download();
+
+        try{
+            int n=Integer.parseInt("abc");
+            System.out.println("转换成功"+n);
+        }catch(NumberFormatException e){
+            System.out.println("转换失败"+e.getMessage());
+        }
+        System.out.println("程序继续执行");
+
+        try{
+            new PaperBook("坏书", -1, 100);
+        }catch(BookException e){
+            System.out.println("创建失败"+e.getMessage());
+        }
     }
 }
