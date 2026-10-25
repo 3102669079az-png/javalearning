@@ -1,10 +1,16 @@
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         Scanner sc = new Scanner(System.in);
-        ArrayList<Book> shelf = new ArrayList<>();
+        ArrayList<Book> shelf = load();
 
         while (true) {
             System.out.println();
@@ -41,6 +47,7 @@ public class Main {
 
                 try {
                     shelf.add(new PaperBook(name, price, pages));
+                    save(shelf);
                     System.out.println("添加成功:"+name);
                 } catch (BookException e) {
                     System.out.println("添加失败:"+e.getMessage());
@@ -89,6 +96,7 @@ public class Main {
                     System.out.println("没有找到这本书:" + key);
                 } else {
                     shelf.remove(target);
+                    save(shelf);
                     System.out.println("删除成功:" + target.name);
                 }
             }
@@ -97,5 +105,30 @@ public class Main {
             }
         }
         sc.close();
+    }
+    private static void save(ArrayList<Book> shelf) throws IOException {
+        List<String> lines=new ArrayList<>();
+        for(Book book : shelf){
+            lines.add(book.name+"," + book.price + "," + book.pages);
+        }
+        Files.write(Paths.get("shelf.txt"), lines);
+    }
+    private static ArrayList<Book> load() throws IOException {
+        ArrayList<Book> shelf = new ArrayList<>();
+        Path file = Path.of("shelf.txt");
+
+        if (!Files.exists(file)) {
+            return shelf;
+        }
+        for(String line : Files.readAllLines(file)) {
+            if (line.isBlank()) continue;
+            String[] p = line.split(",");
+            try{
+                shelf.add(new PaperBook(p[0], Integer.parseInt(p[1]), Integer.parseInt(p[2])));
+            }catch (BookException | NumberFormatException e ) {
+                System.out.println("跳过损坏的记录:" + line);
+            }
+        }
+        return shelf;
     }
 }
