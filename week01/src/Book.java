@@ -4,7 +4,7 @@ public abstract class Book {
     int pages;
 
     Book(String name,int price,int pages) {
-        if(name==null || name.isEmpty()) {
+        if(name==null || name.isBlank()) {
             throw new BookException("书名不能为空");
         }
         if(price<0) {
