@@ -1,3 +1,4 @@
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -28,9 +29,9 @@ public class Main {
                 String name = sc.nextLine().trim();
 
                 System.out.print("价格: ");
-                int price;
+                BigDecimal price;
                 try {
-                    price = Integer.parseInt(sc.nextLine().trim());
+                    price = new BigDecimal(sc.nextLine().trim());
                 } catch (NumberFormatException e) {
                     System.out.println("价格必须是数字");
                     continue;
@@ -110,7 +111,7 @@ public class Main {
             if (line.isBlank()) continue;
             String[] p = line.split(",");
             try {
-                Book b = new PaperBook(p[0], Integer.parseInt(p[1]), Integer.parseInt(p[2]));
+                Book b = new PaperBook(p[0], new BigDecimal(p[1]), Integer.parseInt(p[2]));
                 shelf.put(b.name, b);
             } catch (BookException | NumberFormatException e) {
                 System.out.println("跳过损坏的记录:" + line);

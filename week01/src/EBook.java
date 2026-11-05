@@ -1,6 +1,8 @@
+import java.math.BigDecimal;
+
 public class EBook extends Book implements Downloadable {
     int fileSize; // in MB
-    EBook(String name, int price, int pages, int fileSize) {
+    EBook(String name, BigDecimal price, int pages, int fileSize) {
         super(name, price, pages);
         this.fileSize = fileSize;
     }

@@ -1,13 +1,15 @@
+import java.math.BigDecimal;
+
 public abstract class Book {
     String name;
-    int price;
+    BigDecimal price;
     int pages;
 
-    Book(String name,int price,int pages) {
+    Book(String name, BigDecimal price, int pages) {
         if(name==null || name.isBlank()) {
             throw new BookException("书名不能为空");
         }
-        if(price<0) {
+        if(price==null || price.compareTo(BigDecimal.ZERO) < 0) {
             throw new BookException("价格不能为负数:"+price);
         }
         if(pages<=0) {
@@ -21,8 +23,8 @@ public abstract class Book {
     void print() {
         System.out.println(name+","+price+"元,"+pages+"页" );
     }
-    int totalValue(int count) {
-        return price*count;
+    BigDecimal totalValue(int count) {
+        return price.multiply(BigDecimal.valueOf(count));
     }
 
     abstract String getType();
