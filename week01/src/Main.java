@@ -1,122 +1,103 @@
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Scanner;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.List;
-
+import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        HashMap<String, Book> shelf = load();
+        BookDao dao = new BookDao();
 
         while (true) {
             System.out.println();
-            System.out.println("==== 书架 ====");
-            System.out.println("1 加书   2 列出全部   3 查找   4 删除   0 退出");
-            System.out.print("> ");
+            System.out.println("===书架====");
+            System.out.println("1. 添加图书 2. 列出全部 3. 查找图书 4. 删除图书 0. 退出");
+            System.out.print("请输入你的选择: ");
 
             String cmd = sc.nextLine().trim();
 
             if (cmd.equals("0")) {
-                System.out.println("再见");
+                System.out.println("退出程序...");
                 break;
             } else if (cmd.equals("1")) {
-                System.out.print("书名: ");
-                String name = sc.nextLine().trim();
-
-                System.out.print("价格: ");
-                BigDecimal price;
-                try {
-                    price = new BigDecimal(sc.nextLine().trim());
-                } catch (NumberFormatException e) {
-                    System.out.println("价格必须是数字");
-                    continue;
-                }
-
-                System.out.print("页数: ");
-                int pages;
-                try {
-                    pages = Integer.parseInt(sc.nextLine().trim());
-                } catch (NumberFormatException e) {
-                    System.out.println("页数必须是数字");
-                    continue;
-                }
-
-                try {
-                    shelf.put(name, new PaperBook(name, price, pages));
-                    save(shelf);
-                    System.out.println("添加成功:" + name);
-                } catch (BookException e) {
-                    System.out.println("添加失败:" + e.getMessage());
-                }
-
+                addBook(sc, dao);
             } else if (cmd.equals("2")) {
-                if (shelf.isEmpty()) {
-                    System.out.println("书架为空");
-                } else {
-                    int i = 1;
-                    for (Book book : shelf.values()) {
-                        System.out.print(i++ + ". ");
-                        book.print();
-                    }
-                }
-                System.out.println("共" + shelf.size() + "本书");
+                listBooks(dao);
             } else if (cmd.equals("3")) {
-                System.out.print("要查找的书名: ");
-                String key = sc.nextLine().trim();
-                Book found = shelf.get(key);
-                if (found == null) {
-                    System.out.println("没有找到这本书:" + key);
-                } else {
-                    System.out.println("找到: ");
-                    found.print();
-                }
+                findBook(sc, dao);
             } else if (cmd.equals("4")) {
-                System.out.print("要删除的书名: ");
-                String key = sc.nextLine().trim();
-                Book removed = shelf.remove(key);
-                if (removed == null) {
-                    System.out.println("没有找到这本书:" + key);
-                } else {
-                    save(shelf);
-                    System.out.println("删除成功:" + removed.name);
-                }
+                deleteBook(sc, dao);
             } else {
-                System.out.println("没有这个命令");
+                System.out.println("无效的选择，请重新输入。");
             }
         }
         sc.close();
     }
 
-    private static void save(HashMap<String, Book> shelf) throws IOException {
-        List<String> lines = new ArrayList<>();
-        for (Book book : shelf.values()) {
-            lines.add(book.name + "," + book.price + "," + book.pages);
+    private static void addBook(Scanner sc, BookDao dao) {
+        System.out.print("请输入图书名称: ");
+        String name = sc.nextLine().trim();
+
+        System.out.print("请输入图书价格: ");
+        BigDecimal price;
+        try {
+            price = new BigDecimal(sc.nextLine().trim());
+        } catch (NumberFormatException e) {
+            System.out.println("无效的价格，请重新输入。");
+            return;
         }
-        Files.write(Path.of("shelf.txt"), lines);
+
+        System.out.print("请输入图书页数: ");
+        int pages;
+        try {
+            pages = Integer.parseInt(sc.nextLine().trim());
+        } catch (NumberFormatException e) {
+            System.out.println("无效的页数，请重新输入。");
+            return;
+        }
+
+
+        try {
+            dao.insert(new PaperBook(name, price, pages));
+            System.out.println("图书添加成功！" + name);
+        } catch (BookException e) {
+            System.out.println("添加图书时出错: " + e.getMessage());
+        }
     }
 
-    private static HashMap<String, Book> load() throws IOException {
-        HashMap<String, Book> shelf = new HashMap<>();
-        Path file = Path.of("shelf.txt");
-
-        if (!Files.exists(file)) {
-            return shelf;
-        }
-        for (String line : Files.readAllLines(file)) {
-            if (line.isBlank()) continue;
-            String[] p = line.split(",");
-            try {
-                Book b = new PaperBook(p[0], new BigDecimal(p[1]), Integer.parseInt(p[2]));
-                shelf.put(b.name, b);
-            } catch (BookException | NumberFormatException e) {
-                System.out.println("跳过损坏的记录:" + line);
+    private static void listBooks(BookDao dao) {
+        List<Book> books = dao.findAll();
+        if (books.isEmpty()) {
+            System.out.println("没有图书。");
+        } else {
+            int i = 1;
+            for (Book book : books) {
+                System.out.println(i++ + ". ");
+                System.out.print(book);
             }
         }
-        return shelf;
+        System.out.println("共" + books.size() + "本");
+    }
+
+    private static void findBook(Scanner sc, BookDao dao) {
+        System.out.print("请输入要查找的图书名称: ");
+        String key = sc.nextLine().trim();
+
+        Book book = dao.findbyName(key);
+        if (book == null) {
+            System.out.println("没有找到名为 " + key + " 的图书。");
+        } else {
+            System.out.println("找到图书: " + book);
+        }
+    }
+    private static void deleteBook(Scanner sc, BookDao dao) {
+        System.out.print("请输入要删除的图书名称: ");
+        String key = sc.nextLine().trim();
+
+        int result = dao.delete(key);
+        if (result == 0) {
+            System.out.println("没有找到名为 " + key + " 的图书。");
+        } else {
+            System.out.println("删除 " + result + " 本名为 " + key + " 的图书。");
+        }
     }
 }

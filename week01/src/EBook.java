@@ -11,9 +11,9 @@ public class EBook extends Book implements Downloadable {
         return "电子书";
     }
     @Override
-        public void print() {
-            System.out.println(name + "," + price + "元," + pages + "页," + fileSize + "MB");
-        }
+    public String toString() {
+        return super.toString() + "," + fileSize + "MB";
+    }
     @Override
     public void download() {
         System.out.println("正在下载《" + name + "》，大小为" + fileSize + "MB");
