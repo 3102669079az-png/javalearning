@@ -1,4 +1,5 @@
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public abstract class Book {
     long id;
@@ -23,6 +24,7 @@ public abstract class Book {
 
     @Override
     public String toString() {
+        price=price.setScale(2, RoundingMode.HALF_UP);
         return name + "," + price + "元," + pages + "页";
     }
 

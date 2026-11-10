@@ -1,3 +1,5 @@
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DaoTest {
@@ -22,5 +24,14 @@ public class DaoTest {
         System.out.println("\n=== 删掉它 ===");
         int n = dao.delete("DAO测试书");
         System.out.println("删除了 " + n + " 行，现在总共 " + dao.count() + " 本");
+
+        Box<Book> box = new Box<>();
+        box.set(new PaperBook("三体", new BigDecimal("23"), 302));
+
+        Book b2 = box.get();
+        System.out.println(b2);
+
+        System.out.println(box.getClass()==new Box<String>().getClass());
+
     }
 }

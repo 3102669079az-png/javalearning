@@ -76,6 +76,13 @@ public class Main {
             }
         }
         System.out.println("共" + books.size() + "本");
+
+        Book last = lastOf(dao.findAll());
+        if (last == null) {
+            System.out.println("书架是空的");
+        } else {
+            System.out.println("最后一本: " + last);
+        }
     }
 
     private static void findBook(Scanner sc, BookDao dao) {
@@ -140,5 +147,9 @@ public class Main {
         } else {
             System.out.println("已更新: " + book);
         }
+    }
+
+    public static <T> T lastOf(List<T> list) {
+        return list.isEmpty() ? null : list.get(list.size() - 1);
     }
 }
