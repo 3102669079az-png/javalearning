@@ -10,7 +10,7 @@ public class Main {
         while (true) {
             System.out.println();
             System.out.println("===书架====");
-            System.out.println("1. 添加图书 2. 列出全部 3. 查找图书 4. 删除图书 0. 退出");
+            System.out.println("1. 添加图书 2. 列出全部 3. 查找图书 4. 删除图书 5.修改价格 0. 退出");
             System.out.print("请输入你的选择: ");
 
             String cmd = sc.nextLine().trim();
@@ -26,6 +26,8 @@ public class Main {
                 findBook(sc, dao);
             } else if (cmd.equals("4")) {
                 deleteBook(sc, dao);
+            } else if (cmd.equals("5")) {
+                updateBook(sc, dao);
             } else {
                 System.out.println("无效的选择，请重新输入。");
             }
@@ -69,10 +71,8 @@ public class Main {
         if (books.isEmpty()) {
             System.out.println("没有图书。");
         } else {
-            int i = 1;
             for (Book book : books) {
-                System.out.println(i++ + ". ");
-                System.out.print(book);
+                System.out.println("[" + book.id + "] " + book);
             }
         }
         System.out.println("共" + books.size() + "本");
@@ -82,22 +82,63 @@ public class Main {
         System.out.print("请输入要查找的图书名称: ");
         String key = sc.nextLine().trim();
 
-        Book book = dao.findbyName(key);
+        Book book = dao.findByName(key);
         if (book == null) {
             System.out.println("没有找到名为 " + key + " 的图书。");
         } else {
             System.out.println("找到图书: " + book);
         }
     }
-    private static void deleteBook(Scanner sc, BookDao dao) {
-        System.out.print("请输入要删除的图书名称: ");
-        String key = sc.nextLine().trim();
 
-        int result = dao.delete(key);
+    private static void deleteBook(Scanner sc, BookDao dao) {
+        System.out.print("请输入要删除的图书id: ");
+        long id;
+        try {
+            id = Long.parseLong(sc.nextLine().trim());
+        } catch (NumberFormatException e) {
+            System.out.println("无效的id，请重新输入。");
+            return;
+        }
+
+        int result = dao.deleteById(id);
         if (result == 0) {
-            System.out.println("没有找到名为 " + key + " 的图书。");
+            System.out.println("没有找到id为 " + id + " 的图书。");
         } else {
-            System.out.println("删除 " + result + " 本名为 " + key + " 的图书。");
+            System.out.println("删除id为 " + id + " 的图书。");
+        }
+    }
+
+    private static void updateBook(Scanner sc, BookDao dao) {
+        System.out.print("请输入要修改的图书id:");
+        long id;
+        try {
+            id = Long.parseLong(sc.nextLine().trim());
+        } catch (NumberFormatException e) {
+            System.out.println("id必须是数字");
+            return;
+        }
+        Book book = dao.findById(id);
+        if (book == null) {
+            System.out.println("没有id=" + id + "的图书");
+            return;
+        }
+        System.out.println("当前: " + book);
+
+        System.out.print("新价格：");
+        BigDecimal price;
+        try {
+            price = new BigDecimal(sc.nextLine().trim());
+        } catch (NumberFormatException e) {
+            System.out.println("价格必须是数字");
+            return;
+        }
+
+        book.price = price;
+
+        if (dao.update(book) == 0) {
+            System.out.println("更新失败");
+        } else {
+            System.out.println("已更新: " + book);
         }
     }
 }

@@ -1,6 +1,7 @@
 import java.math.BigDecimal;
 
 public abstract class Book {
+    long id;
     String name;
     BigDecimal price;
     int pages;

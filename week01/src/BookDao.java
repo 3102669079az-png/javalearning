@@ -1,11 +1,10 @@
-import com.mysql.cj.protocol.Resultset;
-
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class BookDao {
+    private static final String SELECT_ALL="SELECT id,name,type,price,pages,file_size";
 
     private static final String URL=
                       "jdbc:mysql://localhost:3306/bookshelf"
@@ -19,7 +18,7 @@ public class BookDao {
 
     // ============ 查全部 ============
     public List<Book> findAll() {
-        String sql = "SELECT name,type,price,pages,file_size FROM book ORDER BY id";
+        String sql =SELECT_ALL+" FROM book ORDER BY id";
         List<Book> result = new ArrayList<>();
 
         try (Connection conn = getConnection();
@@ -36,8 +35,8 @@ public class BookDao {
     }
 
     // ============ 查单个 ============
-    public Book findbyName(String name) {
-        String sql = "SELECT name,type,price,pages,file_size FROM book WHERE name = ? LIMIT 1";
+    public Book findByName(String name) {
+        String sql =SELECT_ALL+" FROM book WHERE name = ? LIMIT 1";
 
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -55,7 +54,7 @@ public class BookDao {
     }
 
     // ============ 加 ============
-    public void insert(Book book) {
+    public long insert(Book book) {
         String sql = "INSERT INTO book (name, type, price, pages, file_size) VALUES (?, ?, ?, ?, ?)";
 
         String type;
@@ -67,7 +66,7 @@ public class BookDao {
             type="PAPER";
         }
         try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, book.name);
             ps.setString(2, type);
@@ -79,6 +78,14 @@ public class BookDao {
                 ps.setNull(5, Types.INTEGER);
             }
             ps.executeUpdate();
+
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) {
+                    book.id = keys.getLong(1);
+                }
+            }
+            return book.id;
+
         } catch (SQLException e) {
             throw new RuntimeException("插入失败", e);
         }
@@ -113,16 +120,78 @@ public class BookDao {
     }
     // ============ 变成对象============
     private Book toBook(ResultSet rs) throws SQLException {
+        long id = rs.getLong("id");
         String name = rs.getString("name");
         String type = rs.getString("type");
         BigDecimal price = rs.getBigDecimal("price");
         int pages = rs.getInt("pages");
 
+        Book book;
         if (type.equals("EBOOK")) {
             int filesize = rs.getInt("file_size");
-            return new EBook(name, price, pages, filesize);
+            book = new EBook(name, price, pages, filesize);
         } else {
-            return new PaperBook(name, price, pages);
+            book = new PaperBook(name, price, pages);
+        }
+        book.id=id;
+        return book;
+    }
+    // ============ 改 ============
+    public int update(Book book) {
+        String sql = "UPDATE book SET name = ?, type=?,price = ?, pages = ?,file_size= ? WHERE id = ?";
+
+        String type;
+        Integer fileSize=null;
+        if(book instanceof EBook ebook){
+            type="EBOOK";
+            fileSize=ebook.fileSize;
+        }else{
+            type="PAPER";
+        }
+        try(Connection coon=getConnection();
+            PreparedStatement ps=coon.prepareStatement(sql)){
+
+            ps.setString(1,book.name);
+            ps.setString(2,type);
+            ps.setBigDecimal(3,book.price);
+            ps.setInt(4,book.pages);
+            if(fileSize!=null){
+                ps.setInt(5,fileSize);
+            }else{
+                ps.setNull(5,Types.INTEGER);
+            }
+            ps.setLong(6,book.id);
+
+            return ps.executeUpdate();
+
+        }catch(SQLException e){
+            throw new RuntimeException("更新失败",e);
+        }
+    }
+
+    public Book findById(long id) {
+        String sql =SELECT_ALL+" FROM book WHERE id = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return toBook(rs);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("查找图书时出错", e);
+        }
+        return null;
+    }
+    public int deleteById(long id) {
+        String sql = "DELETE FROM book WHERE id = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, id);
+            return ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("删除图书时出错", e);
         }
     }
 }

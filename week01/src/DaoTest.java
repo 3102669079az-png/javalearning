@@ -12,7 +12,7 @@ public class DaoTest {
         System.out.println("共 " + books.size() + " 本");
 
         System.out.println("\n=== 按名查 ===");
-        Book found = dao.findbyName("活着");
+        Book found = dao.findByName("活着");
         System.out.println(found == null ? "没找到" : "找到: " + found.name);
 
         System.out.println("\n=== 插一本 ===");
