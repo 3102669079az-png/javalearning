@@ -24,8 +24,7 @@ public abstract class Book {
 
     @Override
     public String toString() {
-        price=price.setScale(2, RoundingMode.HALF_UP);
-        return name + "," + price + "元," + pages + "页";
+        return name + "," + price.setScale(2, RoundingMode.HALF_UP) + "元," + pages + "页";
     }
 
     void print() {
