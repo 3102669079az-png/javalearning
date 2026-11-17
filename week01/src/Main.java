@@ -5,7 +5,7 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        BookDao dao = new BookDao();
+        BookDaoHolder dao = BookDaoHolder.getInstance();
 
         while (true) {
             System.out.println();
@@ -35,7 +35,7 @@ public class Main {
         sc.close();
     }
 
-    private static void addBook(Scanner sc, BookDao dao) {
+    private static void addBook(Scanner sc, BookDaoHolder dao) {
         System.out.print("请输入图书名称: ");
         String name = sc.nextLine().trim();
 
@@ -66,7 +66,7 @@ public class Main {
         }
     }
 
-    private static void listBooks(BookDao dao) {
+    private static void listBooks(BookDaoHolder dao) {
         List<Book> books = dao.findAll();
         if (books.isEmpty()) {
             System.out.println("没有图书。");
@@ -85,7 +85,7 @@ public class Main {
         }
     }
 
-    private static void findBook(Scanner sc, BookDao dao) {
+    private static void findBook(Scanner sc, BookDaoHolder dao) {
         System.out.print("请输入要查找的图书名称: ");
         String key = sc.nextLine().trim();
 
@@ -97,7 +97,7 @@ public class Main {
         }
     }
 
-    private static void deleteBook(Scanner sc, BookDao dao) {
+    private static void deleteBook(Scanner sc, BookDaoHolder dao) {
         System.out.print("请输入要删除的图书id: ");
         long id;
         try {
@@ -115,7 +115,7 @@ public class Main {
         }
     }
 
-    private static void updateBook(Scanner sc, BookDao dao) {
+    private static void updateBook(Scanner sc, BookDaoHolder dao) {
         System.out.print("请输入要修改的图书id:");
         long id;
         try {
